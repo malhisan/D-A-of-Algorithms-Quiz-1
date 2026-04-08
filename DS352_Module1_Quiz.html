@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DS352 – Module 1: Fundamentals of Algorithms Quiz</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --card: #21253a;
+    --border: #2e3350;
+    --accent: #6c63ff;
+    --accent2: #00d4aa;
+    --text: #e8eaf0;
+    --muted: #8891aa;
+    --correct: #00d4aa;
+    --wrong: #ff6b6b;
+    --warn: #ffb347;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+  .header {
+    background: linear-gradient(135deg, #1a1d27 0%, #0f1117 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 28px 24px 20px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 50% 0%, rgba(108,99,255,.18) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .course-tag {
+    display: inline-block;
+    background: rgba(108,99,255,.18); border: 1px solid rgba(108,99,255,.4);
+    color: #a89fff; font-size: 11px; font-weight: 700; letter-spacing: 2px;
+    text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
+  }
+  .header h1 { font-size: clamp(20px, 4vw, 30px); font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .header p { color: var(--muted); font-size: 14px; }
+
+  .progress-wrap { padding: 16px 24px 0; max-width: 800px; margin: 0 auto; }
+  .progress-meta { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
+  .progress-track { background: var(--border); border-radius: 8px; height: 8px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); border-radius: 8px; transition: width .4s ease; width: 0%; }
+
+  .quiz-body { max-width: 800px; margin: 24px auto 40px; padding: 0 16px; }
+
+  .section-label {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--accent2); background: rgba(0,212,170,.1); border: 1px solid rgba(0,212,170,.25);
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 12px;
+  }
+  .question-card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px; margin-bottom: 20px; animation: fadeIn .35s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  .q-number { font-size: 11px; font-weight: 700; color: var(--muted); letter-spacing: 1px; margin-bottom: 8px; text-transform: uppercase; }
+  .q-text { font-size: 16px; font-weight: 600; color: var(--text); line-height: 1.55; margin-bottom: 20px; }
+
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn {
+    background: var(--surface); border: 1.5px solid var(--border); border-radius: 10px;
+    padding: 13px 16px; cursor: pointer; display: flex; align-items: flex-start; gap: 12px;
+    text-align: left; transition: border-color .2s, background .2s, transform .1s;
+    color: var(--text); font-size: 14.5px; line-height: 1.4;
+  }
+  .option-btn:hover:not(:disabled) { border-color: var(--accent); background: rgba(108,99,255,.1); transform: translateX(3px); }
+  .opt-letter {
+    min-width: 26px; height: 26px; background: var(--border); border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--muted); flex-shrink: 0;
+    transition: background .2s, color .2s;
+  }
+  .option-btn.correct { border-color: var(--correct); background: rgba(0,212,170,.1); }
+  .option-btn.correct .opt-letter { background: var(--correct); color: #000; }
+  .option-btn.wrong { border-color: var(--wrong); background: rgba(255,107,107,.1); }
+  .option-btn.wrong .opt-letter { background: var(--wrong); color: #fff; }
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 14px; padding: 12px 14px; border-radius: 10px;
+    font-size: 13.5px; line-height: 1.5; display: none; animation: fadeIn .25s ease;
+  }
+  .feedback.show { display: block; }
+  .feedback.correct-fb { background: rgba(0,212,170,.1); border: 1px solid rgba(0,212,170,.35); color: #7dffd5; }
+  .feedback.wrong-fb { background: rgba(255,107,107,.08); border: 1px solid rgba(255,107,107,.3); color: #ffaaaa; }
+  .feedback strong { color: #fff; }
+
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+  .btn-nav {
+    background: none; border: 1.5px solid var(--border); color: var(--muted);
+    padding: 9px 20px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600;
+    transition: all .2s;
+  }
+  .btn-nav:hover { border-color: var(--accent); color: var(--accent); }
+  .btn-nav:disabled { opacity: .3; cursor: default; }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--accent), #9b8cff); border: none; color: #fff;
+    padding: 10px 22px; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 700;
+    transition: opacity .2s, transform .1s;
+  }
+  .btn-primary:hover { opacity: .9; transform: scale(1.02); }
+  .btn-primary:disabled { opacity: .4; cursor: default; transform: none; }
+
+  /* SCORE */
+  .score-screen { display: none; text-align: center; padding: 40px 20px 60px; max-width: 600px; margin: 0 auto; animation: fadeIn .5s ease; }
+  .score-screen.active { display: block; }
+  .score-ring { position: relative; width: 160px; height: 160px; margin: 0 auto 28px; }
+  .score-ring svg { transform: rotate(-90deg); }
+  .score-ring-bg { fill: none; stroke: var(--border); stroke-width: 12; }
+  .score-ring-fill { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1.2s ease; }
+  .score-ring-text { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-pct { font-size: 36px; font-weight: 800; color: #fff; }
+  .score-lbl { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; }
+  .grade-badge { display: inline-block; font-size: 22px; font-weight: 800; padding: 6px 22px; border-radius: 30px; margin-bottom: 18px; letter-spacing: 1px; }
+  .grade-A { background: rgba(0,212,170,.15); color: var(--correct); border: 1.5px solid rgba(0,212,170,.4); }
+  .grade-B { background: rgba(108,99,255,.15); color: #a89fff; border: 1.5px solid rgba(108,99,255,.4); }
+  .grade-C { background: rgba(255,179,71,.12); color: var(--warn); border: 1.5px solid rgba(255,179,71,.35); }
+  .grade-D { background: rgba(255,107,107,.1); color: var(--wrong); border: 1.5px solid rgba(255,107,107,.3); }
+  .score-headline { font-size: 24px; font-weight: 700; margin-bottom: 8px; color: #fff; }
+  .score-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+  .score-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 32px; }
+  .stat-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 16px 12px; }
+  .stat-val { font-size: 28px; font-weight: 800; }
+  .stat-val.green { color: var(--correct); }
+  .stat-val.red { color: var(--wrong); }
+  .stat-val.blue { color: #a89fff; }
+  .stat-name { font-size: 11px; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .8px; }
+  .btn-restart { background: linear-gradient(135deg, var(--accent), #9b8cff); border: none; color: #fff; padding: 14px 36px; border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: 700; transition: opacity .2s; }
+  .btn-restart:hover { opacity: .88; }
+
+  /* START */
+  #start-screen { display: none; text-align: center; padding: 40px 20px 60px; max-width: 600px; margin: 0 auto; }
+  #start-screen.active { display: block; }
+  #quiz-container { display: none; }
+  #quiz-container.active { display: block; }
+  .start-icon { font-size: 60px; margin-bottom: 20px; }
+  .start-title { font-size: 26px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+  .start-sub { color: var(--muted); font-size: 15px; line-height: 1.6; margin-bottom: 28px; }
+  .start-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 32px; }
+  .chip { background: var(--card); border: 1px solid var(--border); border-radius: 20px; font-size: 12px; padding: 5px 14px; color: var(--muted); }
+  .btn-start { background: linear-gradient(135deg, var(--accent), #9b8cff); border: none; color: #fff; padding: 14px 40px; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: 700; }
+  .btn-start:hover { opacity: .9; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="course-tag">DS352 · Design and Analysis of Algorithms</div>
+  <h1>Module 1: Fundamentals of Algorithms</h1>
+  <p>Saudi Electronic University &nbsp;·&nbsp; College of Computing and Informatics</p>
+</div>
+
+<div id="start-screen" class="active">
+  <div class="start-icon">🧮</div>
+  <div class="start-title">Ready to test your knowledge?</div>
+  <div class="start-sub">This quiz covers everything from Module 1 — algorithm definitions, characteristics, problem-solving steps, specification methods, analysis, and the seven important problem types.</div>
+  <div class="start-chips">
+    <span class="chip">35 Questions</span>
+    <span class="chip">Randomized Order</span>
+    <span class="chip">Instant Feedback</span>
+    <span class="chip">Score Report</span>
+  </div>
+  <button class="btn-start" onclick="startQuiz()">Start Quiz →</button>
+</div>
+
+<div class="progress-wrap" id="progress-wrap" style="display:none;">
+  <div class="progress-meta">
+    <span id="q-counter">Question 1 of 35</span>
+    <span id="score-live">Score: 0</span>
+  </div>
+  <div class="progress-track"><div class="progress-fill" id="prog-fill"></div></div>
+</div>
+
+<div id="quiz-container">
+  <div class="quiz-body">
+    <div id="question-area"></div>
+    <div class="nav-row">
+      <button class="btn-nav" id="btn-prev" onclick="navigate(-1)" disabled>← Previous</button>
+      <button class="btn-primary" id="btn-next" onclick="navigate(1)" disabled>Next →</button>
+    </div>
+  </div>
+</div>
+
+<div class="score-screen" id="score-screen">
+  <div class="score-ring">
+    <svg width="160" height="160" viewBox="0 0 160 160">
+      <circle class="score-ring-bg" cx="80" cy="80" r="68"/>
+      <circle class="score-ring-fill" id="ring-fill" cx="80" cy="80" r="68" stroke-dasharray="427" stroke-dashoffset="427"/>
+    </svg>
+    <div class="score-ring-text">
+      <span class="score-pct" id="pct-text">0%</span>
+      <span class="score-lbl">Score</span>
+    </div>
+  </div>
+  <div class="grade-badge" id="grade-badge">A</div>
+  <div class="score-headline" id="score-headline">Excellent!</div>
+  <div class="score-sub" id="score-sub">You answered 0 out of 35 questions correctly.</div>
+  <div class="score-stats">
+    <div class="stat-box"><div class="stat-val green" id="s-correct">0</div><div class="stat-name">Correct</div></div>
+    <div class="stat-box"><div class="stat-val red" id="s-wrong">0</div><div class="stat-name">Wrong</div></div>
+    <div class="stat-box"><div class="stat-val blue" id="s-skipped">0</div><div class="stat-name">Skipped</div></div>
+  </div>
+  <button class="btn-restart" onclick="restartQuiz()">↺ Retake Quiz</button>
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // ── Definition ──
+  { section:"Definition of Algorithm", q:"Which of the following best defines an algorithm?", options:["A programming language used to build software applications","A sequence of clear instructions for solving a problem to get a required output for any valid input in finite time","A data structure used to organize and store information efficiently","A method for compiling source code into machine-readable instructions"], answer:1, explain:"An algorithm is <strong>a sequence of clear instructions</strong> that produces a required output for any legitimate input in a finite amount of time." },
+  { section:"Definition of Algorithm", q:"According to the slides, what does an algorithm take as input and produce as output?", options:["It takes source code as input and produces compiled output","It takes any legitimate input and produces a required output within finite time","It takes only numeric data and produces textual output","It takes database queries and produces formatted reports"], answer:1, explain:"An algorithm processes <strong>any legitimate input</strong> and produces the required output in a <strong>finite amount of time</strong>." },
+  { section:"Definition of Algorithm", q:"Which characteristic states that each instruction in an algorithm must be clear and unambiguous?", options:["Efficiency","Finiteness","Definiteness","Generality"], answer:2, explain:"<strong>Definiteness</strong> means every instruction must be clear and unambiguous — no step should be open to interpretation." },
+  { section:"Definition of Algorithm", q:"The 'Finiteness' characteristic of an algorithm means that:", options:["The algorithm uses a fixed, finite amount of memory","The algorithm must terminate after a finite number of steps for all cases","The algorithm can only process a finite number of inputs","The algorithm runs in constant time regardless of input size"], answer:1, explain:"<strong>Finiteness</strong> means the algorithm must terminate after a <strong>finite number of steps</strong> for all cases when traced." },
+  { section:"Definition of Algorithm", q:"How many output quantities must a valid algorithm produce at minimum?", options:["Zero — an algorithm may produce no output","Exactly two quantities","At least one quantity","Exactly three quantities, one per input"], answer:2, explain:"The Output characteristic states an algorithm must produce <strong>at least one quantity</strong>." },
+  { section:"Definition of Algorithm", q:"The 'Input' characteristic of an algorithm states that:", options:["Exactly one quantity must be externally supplied","Zero or more quantities are externally supplied","At least two quantities must be provided as input","Input must always be numeric data"], answer:1, explain:"The Input characteristic states that <strong>zero or more quantities</strong> are externally supplied." },
+  { section:"Definition of Algorithm", q:"Which of the following is NOT one of the five main characteristics of an algorithm?", options:["Input","Finiteness","Portability","Efficiency"], answer:2, explain:"The five characteristics are: Input, Output, Definiteness, Finiteness, and Efficiency. <strong>Portability</strong> is not listed." },
+  { section:"Definition of Algorithm", q:"In Euclid's algorithm for gcd(m, n), what happens at Step 1 when n = 0?", options:["The algorithm sets m = 0 and continues","The algorithm assigns r = m and proceeds to Step 3","The algorithm returns m as the answer and stops","The algorithm divides m by n and stores the remainder in r"], answer:2, explain:"At Step 1, <strong>if n = 0, the value of m is returned as the answer</strong> and the algorithm stops." },
+  { section:"Definition of Algorithm", q:"According to the slides, what distinguishes different algorithms that solve the same problem?", options:["They are written in different programming languages only","They use different ideas and may run at different speeds","They always produce different outputs for the same input","They differ only in the number of lines of code"], answer:1, explain:"Algorithms for the same problem can be based on <strong>different ideas</strong> and can solve it at <strong>different speeds</strong>." },
+
+  // ── Writing an Algorithm ──
+  { section:"Steps for Writing an Algorithm", q:"An algorithm has two main structural parts. What are they?", options:["Introduction and conclusion","Head and body","Declaration and execution","Interface and implementation"], answer:1, explain:"An algorithm consists of a <strong>Head</strong> (keyword Algorithm + name + parameters) and a <strong>Body</strong> (statements and constructs)." },
+  { section:"Steps for Writing an Algorithm", q:"Which symbol is used as the assignment operator in algorithm pseudocode?", options:["=","==","←","→"], answer:2, explain:"The <strong>left arrow ←</strong> is used as the assignment operator (e.g., v ← 10)." },
+  { section:"Steps for Writing an Algorithm", q:"In pseudocode, how are comments written?", options:["Using /* comment */","Using # at the beginning of the line","Using // at the beginning of the line","Using <!-- comment -->"], answer:2, explain:"Comments in pseudocode are written using <strong>//</strong> at the beginning of the line." },
+  { section:"Steps for Writing an Algorithm", q:"Which rule applies to identifiers in algorithm pseudocode?", options:["Must start with a digit followed by letters","Must start with a letter and may contain alphanumeric characters after the first","Must be written entirely in uppercase","Must match reserved keywords exactly"], answer:1, explain:"An identifier must <strong>begin with a letter</strong> and may contain alphanumeric characters after the first letter. No data types are declared." },
+  { section:"Steps for Writing an Algorithm", q:"How are compound statements like if/for/while properly closed in pseudocode?", options:["Using semicolons at the end of each block","Using endif, endfor, or endwhile respectively","Using closing parentheses ) at the end","Using the STOP keyword after each block"], answer:1, explain:"Compound statements can be closed using <strong>endif, endfor, endwhile</strong>. Proper indentation is required." },
+
+  // ── Problem Solving Steps ──
+  { section:"Fundamentals of Algorithmic Problem Solving", q:"What is the FIRST step in the process of designing and analysing an algorithm?", options:["Choosing a suitable data structure","Understanding the problem","Writing the pseudocode","Analysing time complexity"], answer:1, explain:"<strong>Understanding the problem</strong> is the very first step. Skipping it risks unnecessary rework." },
+  { section:"Fundamentals of Algorithmic Problem Solving", q:"Which statement about algorithm correctness is emphasized in the slides?", options:["A correct algorithm works correctly for most common inputs","A correct algorithm works correctly for all legitimate inputs","A correct algorithm runs in under one second for any input","A correct algorithm uses the minimum possible memory"], answer:1, explain:"Correctness means the algorithm works <strong>for all legitimate inputs</strong>, not just most of the time." },
+  { section:"Fundamentals of Algorithmic Problem Solving", q:"What is a Random-Access Machine (RAM) in the context of algorithm design?", options:["A machine that executes operations concurrently using multiple processors","A machine model where instructions are executed one after another (one operation at a time)","A specialized computer designed for randomized algorithms only","A machine that accesses memory randomly for faster processing"], answer:1, explain:"In the <strong>RAM model</strong>, instructions are executed sequentially — one operation at a time. Algorithms for RAM are called <strong>sequential algorithms</strong>." },
+  { section:"Fundamentals of Algorithmic Problem Solving", q:"What are algorithms called when they take advantage of computers that execute operations concurrently?", options:["Sequential algorithms","Approximation algorithms","Parallel algorithms","Exact algorithms"], answer:2, explain:"<strong>Parallel algorithms</strong> exploit computers that can execute multiple operations concurrently." },
+  { section:"Fundamentals of Algorithmic Problem Solving", q:"What is an approximation algorithm?", options:["An algorithm that runs faster than an exact algorithm but with the same accuracy","An algorithm used when a problem is too complex to solve exactly, accepting near-correct results","An algorithm that approximates the time complexity of another algorithm","An algorithm that rounds all numerical inputs to the nearest integer"], answer:1, explain:"An <strong>approximation algorithm</strong> is used when exact solutions are infeasible. Results must be within a predefined error limit." },
+  { section:"Fundamentals of Algorithmic Problem Solving", q:"Which famous equation from the slides captures the link between algorithms, data structures, and programs?", options:["Programs = Input + Output","Algorithms + Data Structures = Programs","Data Structures × Complexity = Performance","Algorithms = Programs − Data Structures"], answer:1, explain:"<strong>Algorithms + Data Structures = Programs</strong> — the right data structure choice must precede algorithm design." },
+  { section:"Fundamentals of Algorithmic Problem Solving", q:"Which of the following is listed as an algorithmic design technique (paradigm) in the slides?", options:["Bubble Sort, Quick Sort, Merge Sort","Linear Search, Binary Search, Hash Search","Brute Force, Divide and Conquer, Dynamic Programming, Greedy Technique","Iteration, Recursion, Backtracking, Memoization"], answer:2, explain:"Design techniques listed include <strong>Brute Force, Divide and Conquer, Dynamic Programming, and Greedy Technique</strong>." },
+
+  // ── Specifying ──
+  { section:"Methods of Specifying an Algorithm", q:"How many methods of specifying an algorithm are presented in Module 1?", options:["Two","Three","Four","Five"], answer:1, explain:"There are <strong>three methods</strong>: Natural Language, Pseudocode, and Flowchart." },
+  { section:"Methods of Specifying an Algorithm", q:"Which method of algorithm specification is described as the 'most widely used nowadays'?", options:["Natural Language","Flowchart","Pseudocode","Machine code"], answer:2, explain:"<strong>Pseudocode</strong> is described as the most widely used method for specifying algorithms today." },
+  { section:"Methods of Specifying an Algorithm", q:"What is a major drawback of using Natural Language to specify an algorithm?", options:["It requires knowledge of a programming language","It many times provides a brief, potentially imprecise specification","It cannot describe loops or conditional logic","It is only usable in English"], answer:1, explain:"Natural Language is simple, but its drawback is that it <strong>many times provides a brief, imprecise specification</strong>." },
+  { section:"Methods of Specifying an Algorithm", q:"Pseudocode is best described as:", options:["A strict subset of the Python programming language","A graphical representation using geometric shapes","A mixture of natural language and programming language constructs","A formal mathematical notation for algorithm specification"], answer:2, explain:"Pseudocode is <strong>a mixture of natural language and programming language constructs</strong>, usually more precise than natural language alone." },
+  { section:"Methods of Specifying an Algorithm", q:"Flowcharts represent an algorithm using:", options:["Plain English sentences organized in numbered steps","Connected geometric shapes containing descriptions of algorithm steps","A list of variable declarations and assignment statements","A series of mathematical equations in standard notation"], answer:1, explain:"A flowchart is <strong>a graphical representation using connected geometric shapes</strong> that describe algorithm steps." },
+  { section:"Methods of Specifying an Algorithm", q:"According to the slides, when were flowcharts the dominant specification method?", options:["In the modern era of cloud computing","In the earlier days of computing","During the rise of object-oriented programming","After pseudocode was introduced in the 1990s"], answer:1, explain:"Flowcharts were dominant <strong>in the earlier days of computing</strong>. Today they are considered inconvenient and pseudocode dominates." },
+
+  // ── Correctness & Analysis ──
+  { section:"Proving Correctness & Analysing an Algorithm", q:"What common mathematical technique is used to prove the correctness of an algorithm?", options:["Differential calculus","Mathematical induction","Linear algebra","Set theory"], answer:1, explain:"<strong>Mathematical induction</strong> is commonly used because an algorithm's iterations provide a natural sequence of steps." },
+  { section:"Proving Correctness & Analysing an Algorithm", q:"For approximation algorithms, what is the key requirement regarding correctness?", options:["The result must be exactly equal to the true solution","The error produced by the algorithm must not exceed a predefined limit","The algorithm must run faster than any exact algorithm","The algorithm must use the same data structures as the exact solution"], answer:1, explain:"For approximation algorithms, <strong>the error must not exceed a predefined limit</strong>." },
+  { section:"Proving Correctness & Analysing an Algorithm", q:"Which two types of efficiency are used to evaluate an algorithm?", options:["Compile-time efficiency and run-time efficiency","Time efficiency and space efficiency","Best-case efficiency and worst-case efficiency","Code efficiency and memory efficiency"], answer:1, explain:"<strong>Time efficiency</strong> (how fast it runs) and <strong>space efficiency</strong> (how much extra memory it uses) are the two kinds of algorithm efficiency." },
+  { section:"Proving Correctness & Analysing an Algorithm", q:"Which of the following is listed as one of the four factors for analysing an algorithm?", options:["The programming language used for implementation","Simplicity of an algorithm","The operating system it runs on","The number of developers who coded it"], answer:1, explain:"The four factors are: Time efficiency, Space efficiency, <strong>Simplicity</strong>, and Generality." },
+
+  // ── Important Problem Types ──
+  { section:"Important Problem Types", q:"How many important problem types are listed in Module 1?", options:["Five","Six","Seven","Eight"], answer:2, explain:"The slides list <strong>seven</strong> problem types: Sorting, Searching, String Processing, Graph Problems, Combinatorial Problems, Geometric Problems, and Numerical Problems." },
+  { section:"Important Problem Types", q:"A sorting algorithm is called 'stable' if:", options:["It never requires extra memory beyond the input array","It preserves the relative order of any two equal elements in its input","It always runs in O(n log n) time","It handles any data type without modification"], answer:1, explain:"A <strong>stable</strong> sorting algorithm preserves the <strong>relative order of equal elements</strong> in its input." },
+  { section:"Important Problem Types", q:"An algorithm is called 'in-place' if:", options:["It runs directly on the CPU without memory access","It does not require extra memory (e.g., Quick Sort)","It is implemented within the operating system kernel","It sorts data in descending order"], answer:1, explain:"An <strong>in-place</strong> algorithm does not require extra memory. Quick Sort is given as an example." },
+  { section:"Important Problem Types", q:"In string processing, what is 'string matching'?", options:["Comparing the lengths of two strings","Searching for a given word or pattern within a text","Encoding a string using a compression algorithm","Converting a string from one character encoding to another"], answer:1, explain:"<strong>String matching</strong> is searching for a given word (pattern) within a text. It is very useful in bioinformatics." },
+  { section:"Important Problem Types", q:"In graph theory, what are the points called, and what connects them?", options:["Nodes connected by paths","Vertices connected by edges","Cells connected by links","Points connected by arcs"], answer:1, explain:"A graph is a collection of <strong>vertices</strong> (points) connected by <strong>edges</strong> (line segments)." },
+  { section:"Important Problem Types", q:"Which of the following is an example of a combinatorial problem mentioned in the slides?", options:["Binary search in a sorted array","Computing the square root of a number","The Traveling Salesman Problem","Sorting an array of integers"], answer:2, explain:"The <strong>Traveling Salesman Problem</strong> is a classic example of a combinatorial problem." },
+  { section:"Important Problem Types", q:"Geometric algorithms are used in which of the following fields?", options:["Database management and query optimization","Computer graphics, robotics, and tomography","Compiler design and parsing","Network routing and packet switching"], answer:1, explain:"<strong>Geometric algorithms</strong> are used in <strong>computer graphics, robotics, and tomography</strong>." },
+  { section:"Important Problem Types", q:"Why can most numerical problems only be solved approximately?", options:["Because computers cannot store irrational numbers with infinite precision","Because numerical data types in programming languages are inherently inaccurate","Because exact solutions to equations, integrals, and nonlinear systems are generally infeasible","Because numerical algorithms are always approximation algorithms by definition"], answer:2, explain:"Numerical problems involve equations, integrals, and functions where <strong>exact solutions are generally infeasible</strong>, requiring approximate methods." }
+];
+
+let questions = [], current = 0, answers = {}, score = 0;
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function startQuiz() {
+  questions = shuffle([...ALL_QUESTIONS]).map(q => {
+    const indexed = q.options.map((o, i) => ({ text: o, orig: i }));
+    shuffle(indexed);
+    const newAnswer = indexed.findIndex(x => x.orig === q.answer);
+    return { ...q, options: indexed.map(x => x.text), answer: newAnswer };
+  });
+  current = 0; answers = {}; score = 0;
+  document.getElementById('start-screen').classList.remove('active');
+  document.getElementById('progress-wrap').style.display = 'block';
+  document.getElementById('quiz-container').classList.add('active');
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const total = questions.length;
+  document.getElementById('q-counter').textContent = `Question ${current + 1} of ${total}`;
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+  document.getElementById('prog-fill').style.width = `${(current / total) * 100}%`;
+  document.getElementById('btn-prev').disabled = current === 0;
+  const isLast = current === total - 1;
+  const answered = answers[current] !== undefined;
+  const nextBtn = document.getElementById('btn-next');
+  nextBtn.disabled = !answered;
+  nextBtn.textContent = isLast ? 'Finish Quiz ✓' : 'Next →';
+
+  const letters = ['A','B','C','D'];
+  const selected = answers[current];
+  const locked = selected !== undefined;
+
+  document.getElementById('question-area').innerHTML = `
+    <div class="question-card">
+      <div class="section-label">${q.section}</div>
+      <div class="q-number">Question ${current + 1} / ${total}</div>
+      <div class="q-text">${q.q}</div>
+      <div class="options">
+        ${q.options.map((opt, i) => {
+          let cls = '';
+          if (locked) {
+            if (i === q.answer) cls = 'correct';
+            else if (i === selected && selected !== q.answer) cls = 'wrong';
+          }
+          return `<button class="option-btn ${cls}" ${locked ? 'disabled' : ''} onclick="selectAnswer(${i})">
+            <span class="opt-letter">${letters[i]}</span><span>${opt}</span>
+          </button>`;
+        }).join('')}
+      </div>
+      ${locked ? `<div class="feedback ${selected === q.answer ? 'correct-fb' : 'wrong-fb'} show">
+        ${selected === q.answer
+          ? `✅ <strong>Correct!</strong> ${q.explain}`
+          : `❌ <strong>Incorrect.</strong> Correct answer: <strong>${letters[q.answer]}</strong>. ${q.explain}`}
+      </div>` : ''}
+    </div>`;
+}
+
+function selectAnswer(idx) {
+  if (answers[current] !== undefined) return;
+  answers[current] = idx;
+  if (idx === questions[current].answer) score++;
+  document.getElementById('score-live').textContent = `Score: ${score}`;
+  document.getElementById('btn-next').disabled = false;
+  renderQuestion();
+}
+
+function navigate(dir) {
+  if (dir === 1 && current === questions.length - 1) { showScore(); return; }
+  current = Math.max(0, Math.min(questions.length - 1, current + dir));
+  renderQuestion();
+}
+
+function showScore() {
+  document.getElementById('quiz-container').classList.remove('active');
+  document.getElementById('progress-wrap').style.display = 'none';
+  const total = questions.length, correct = score;
+  const wrong = Object.keys(answers).filter(i => answers[i] !== questions[i].answer).length;
+  const skipped = total - Object.keys(answers).length;
+  const pct = Math.round((correct / total) * 100);
+  document.getElementById('s-correct').textContent = correct;
+  document.getElementById('s-wrong').textContent = wrong;
+  document.getElementById('s-skipped').textContent = skipped;
+  document.getElementById('pct-text').textContent = pct + '%';
+  document.getElementById('score-sub').textContent = `You answered ${correct} out of ${total} questions correctly.`;
+  const circ = 2 * Math.PI * 68;
+  const fill = document.getElementById('ring-fill');
+  fill.style.strokeDasharray = circ;
+  fill.style.strokeDashoffset = circ;
+  fill.style.stroke = pct >= 80 ? '#00d4aa' : pct >= 65 ? '#6c63ff' : pct >= 50 ? '#ffb347' : '#ff6b6b';
+  setTimeout(() => fill.style.strokeDashoffset = circ - (pct / 100) * circ, 100);
+  const badge = document.getElementById('grade-badge'), headline = document.getElementById('score-headline');
+  if (pct >= 90) { badge.textContent='A+'; badge.className='grade-badge grade-A'; headline.textContent='Outstanding! 🎉'; }
+  else if (pct >= 80) { badge.textContent='A'; badge.className='grade-badge grade-A'; headline.textContent='Excellent Work! 🌟'; }
+  else if (pct >= 70) { badge.textContent='B'; badge.className='grade-badge grade-B'; headline.textContent='Good Job! 👍'; }
+  else if (pct >= 60) { badge.textContent='C'; badge.className='grade-badge grade-C'; headline.textContent='Keep Practising 📚'; }
+  else { badge.textContent='D'; badge.className='grade-badge grade-D'; headline.textContent='Review the Slides 🔄'; }
+  document.getElementById('score-screen').classList.add('active');
+}
+
+function restartQuiz() {
+  document.getElementById('score-screen').classList.remove('active');
+  startQuiz();
+}
+</script>
+</body>
+</html>
